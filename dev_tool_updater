@@ -1,167 +1,71 @@
 #!/usr/bin/env bash
 
-declare -a _taps=('neovim/neovim')
+#-----------------------------------------------------------------------------
+declare dtu_base=$(
+  _program="$0"
+  case "$_program" in
+    (*/*) ;;
+    (*) _program=$(command -v -- "$0")
+  esac
+  [[ -L "$_program" ]] && _program=$(readlink "$_program")
+  cd -P -- "$(dirname -- "$_program")" && pwd -P
+)
 
-declare -a _brews=(arping bash bash-completion bundler-completion catimg checkbashisms cmake coreutils cscope csv-fix ctags curl direnv docker-clean docker-completion docker-compose-completion emojify exercism fasd fdupes ffmpeg figlet gem-completion ghq gibo gist git git-extras git-hooks git-lfs gnu-sed gnu-tar gnu-time graphicsmagick graphviz hadolint heroku html2text htop imagemagick jq lame leiningen less lua luajit macvim miniupnpc mmv mosh moreutils msgpack mtr neovim netcat nethack nmap no-more-secrets open-completion openssh openssl osxutils p7zip phantomjs pidof pv python python3 qpdf rails-completion rake-completion recode redis rmlint rsync ruby ruby-build ruby-completion sdl sdl2 sdl_net sdl_sound shellcheck socat spring-completion sqlite ssh-copy-id tcping the_silver_searcher tidy-html5 tmate tmux tofrodos uni2ascii vim webp wget x264 x265 xvid xz youtube-dl zlib zsh)
-
-declare -a _gems=(brakeman foodcritic haml_lint mdl slim_lint sqlint pry-byebug pry-doc did_you_mean did_you_mean looksee irbtools irbtools-more wirb gem-ctags gem-browse ripper-tags neovim travis cucumber_lint cocoapods)
-
-declare -a _pips=(ansible-lint proselint vim-vint yamllint flootty doge neovim)
-
-declare -a _npms=(babel-eslint eslint eslint-config-prettier eslint-config-standard eslint-plugin-flowtype eslint-plugin-import eslint-plugin-jasmine eslint-plugin-jest eslint-plugin-node eslint-plugin-prettier eslint-plugin-promise eslint-plugin-react eslint-plugin-standard jasmine jest-cli neovim-client prettier prettier-eslint-cli react-devtools stylelint ternjs yarn)
-
-declare -a _cargos=(parallel racer ripgrep svgbob_cli xsv)
+declare dtu_updaters_path="$dtu_base/updaters"
+#-----------------------------------------------------------------------------
+if [[ ! -d "$dtu_updaters_path" ]] ; then
+  echo "$0 could not find '$dtu_updaters_path'"
+  exit 1
+fi
+#-----------------------------------------------------------------------------
+declare -a updaters=$(find -s "$dtu_updaters_path" -type f -name '*.sh')
 
 #-----------------------------------------------------------------------------
-update_brew() {
-  command -v brew >& /dev/null || return
+pretty() {
+  local _script="$1"
+  local _name=$(basename "$_script")
+  [[ "${_name:2:1}" == '_' ]] && _name="${_name:3}"
+  echo "${_name%%.sh}"
+}
+#-----------------------------------------------------------------------------
+usage() {
+  cat <<USAGE
+Usage: ${0##*/} <command>
+  COMMANDS:
+  all     Run all updates
+USAGE
 
-  for _tap in ${_taps[@]} ; do
-    brew tap | grep -qi "$_tap" || brew tap "$_tap"
+  for _script in ${updaters[@]} ; do
+    echo -n '  '
+    pretty "$_script"
   done
 
-  brew update --all
-  brew prune
-  brew cleanup -s
+  exit 1
 }
 #-----------------------------------------------------------------------------
-update_brewed() {
-  command -v brew >& /dev/null || return
+broken() {
+  local _script="$1"
 
-  brew upgrade
-
-  local -A _missing
-
-  for _brew in ${_brews[@]} ; do
-    _missing[${_brew}]=todo
-  done
-
-  while read -r _installed ; do
-    [[ "${_missing[${_installed}]}" == "todo" ]] || continue
-
-    for _brew in ${_brews[@]} ; do
-      if [[ "$_brew" == "$_installed" ]] ; then
-        unset _missing[${_installed}]
-      fi
-    done
-  done < <(brew list --versions | cut -f 1 -d ' ')
-
-  [[ -z ${!_missing[*]} ]] && return 0
-
-  brew install ${!_missing[@]}
+  echo "$_script doesn't appear to define an 'updater' function"
+  exit 1
 }
 #-----------------------------------------------------------------------------
-update_asdf() {
-  command -v asdf >& /dev/null || return
+run_one() {
+  local _script="$1"
 
-  asdf update --head
-  asdf plugin-update --all
+  declare updater
+  source "$_script"
+  declare -fp updater >&/dev/null || broken "$_script"
+
+  updater
 }
 #-----------------------------------------------------------------------------
-update_ghq() {
-  command -v ghq >& /dev/null || return
-
-  ghq list | sed -e 's/github.com\///' | while read -r gh ; do
-    ghq get -u "$gh"
-  done
-}
-#-----------------------------------------------------------------------------
-update_gems() {
-  command -v gem >& /dev/null || return
-  local -A _installed
-  local -A _missing
-
-  for _gem in ${_gems[@]} ; do
-    _missing[${_gem}]=todo
-  done
-
-  while read -r _todo ; do
-    [[ "${_missing[${_todo}]}" == "todo" ]] || continue
-
-    for _gem in ${_gems[@]} ; do
-      if [[ "$_gem" == "$_todo" ]] ; then
-        _installed[${_todo}]=yes
-        unset _missing[${_todo}]
-      fi
-    done
-  done < <(gem list | cut -f 1 -d ' ')
-
-  [[ -n ${!_installed[*]} ]] && gem update --silent ${!_installed[@]}
-  [[ -z ${!_missing[*]} ]] && return 0
-  gem install --silent ${!_missing[@]}
-}
-#-----------------------------------------------------------------------------
-update_pips() {
-  for cmd in pip2 pip3 ; do
-    command -v $cmd >& /dev/null || continue
-
-    for _pip in ${_pips[@]} ; do
-      $cmd show "$_pip" >&/dev/null || $cmd install "$_pip"
-    done
-
-    $cmd --quiet install --upgrade ${_pips[@]} >&/dev/null
-  done
-}
-#-----------------------------------------------------------------------------
-update_npms() {
-  command -v npm >& /dev/null || return
-  local -A _missing
-
-  npm update --global
-
-  for _npm in ${_npms[@]} ; do
-    _missing[${_npm}]=todo
-  done
-
-  while read -r _installed ; do
-    [[ "${_missing[${_installed}]}" == "todo" ]] || continue
-
-    for _npm in ${_npms[@]} ; do
-      if [[ "$_npm" == "$_installed" ]] ; then
-        unset _missing[${_installed}]
-      fi
-    done
-  done < <(npm list --global --depth=0 | grep '@' | sed -e 's/^.* //' -e 's/@.*$//')
-
-  [[ -z ${!_missing[*]} ]] && return 0
-  npm install -g ${!_missing[@]}
-}
-#-----------------------------------------------------------------------------
-update_cargos() {
-  command -v cargo >& /dev/null || return
-
-  for _cargo in ${_cargos[@]} ; do
-    cargo install --list | grep -q "^${_cargo}" || cargo install "$_cargo"
-  done
-}
-#-----------------------------------------------------------------------------
-update_atom() {
-  command -v apm >& /dev/null || return
-
-  apm update --confirm=false --verbose=false
-}
-#-----------------------------------------------------------------------------
-update_vim() {
-  command -v vim >& /dev/null || return
-  [[ -s ~/.vim/autoload/plug.vim ]] || return
-
-  vim --not-a-term +PlugUpgrade +PlugUpdate +PlugClean\! +qall
-}
-#-----------------------------------------------------------------------------
-update_neovim() {
-  command -v nvim >& /dev/null || return
-  [[ -s ~/.config/nvim/autoload/plug.vim ]] || return
-
-  nvim --headless +UpdateRemotePlugins +PlugUpgrade +PlugUpdate +PlugClean\! +qall
-}
-#-----------------------------------------------------------------------------
-update_all() {
-  for _cmd in brew brewed ghq asdf gems npms pips cargos atom vim neovim ; do
-    _func="update_${_cmd}"
+run_all() {
+  for _script in ${updaters[@]} ; do
     _tmp=$(mktemp)
-    echo -ne "$_func \t>>\t"
+    echo -ne "$(pretty "$_script") \t>>\t"
 
-    if $_func >&"$_tmp" ; then
+    if run_one "$_script" >&"$_tmp" ; then
       echo 'ok'
     else
       echo 'err'
@@ -172,31 +76,19 @@ update_all() {
   done
 }
 #-----------------------------------------------------------------------------
-usage() {
-  cat <<USAGE
-Usage: ${0##*/} <command>
-  COMMANDS:
-  brew    update_brew
-  brewed  update_brewed
-  ghq     update_ghq
-  asdf    update_asdf
-  gems    update_gems
-  npms    update_npms
-  pips    update_pips
-  cargos  update_cargos
-  atom    update_atom
-  vim     update_vim
-  neovim  update_neovim
-  all     (All of the above)
+declare _command="${1:-help}"
 
-USAGE
-  exit 1
-}
+case "$_command" in
+  -h|help) usage ;;
+  all) run_all ;;
+  *)
+    declare _script="$dtu_updaters_path/${_command}.sh"
+    if [[ ! -s "$_script" ]] ; then
+      echo "$_script is missing or empty."
+      exit 1
+    fi
+    run_one "$_script"
+  ;;
+esac
 
-#-----------------------------------------------------------------------------
-declare _command
-_command="update_$1"
-declare -fp "$_command" >&/dev/null || usage
-
-"$_command"
 
