@@ -30,7 +30,7 @@ pretty() {
 #-----------------------------------------------------------------------------
 usage() {
   cat <<USAGE
-Usage: ${0##*/} <command>
+Usage: ${0##*/} <command> [command...]
   COMMANDS:
   all     Run all updates
 USAGE
@@ -52,6 +52,11 @@ broken() {
 #-----------------------------------------------------------------------------
 run_one() {
   local _script="$1"
+
+  if [[ ! -s "$_script" ]] ; then
+    echo "$_script is missing or empty."
+    exit 1
+  fi
 
   declare updater
   source "$_script"
@@ -76,19 +81,12 @@ run_all() {
   done
 }
 #-----------------------------------------------------------------------------
-declare _command="${1:-help}"
+[[ $# -gt 0 ]] || usage
 
-case "$_command" in
-  -h|help) usage ;;
-  all) run_all ;;
-  *)
-    declare _script="$dtu_updaters_path/${_command}.sh"
-    if [[ ! -s "$_script" ]] ; then
-      echo "$_script is missing or empty."
-      exit 1
-    fi
-    run_one "$_script"
-  ;;
-esac
-
-
+for _command in "$@" ; do
+  case "$_command" in
+    -h|help) usage ;;
+    all) run_all ;;
+    *) run_one "$dtu_updaters_path/"??"_${_command}.sh" ;;
+  esac
+done
