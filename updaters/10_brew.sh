@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # CONFIG
-#  declare -xa DTU_BREW=(my list of taps)
+#  declare -xa DTU_BREW_TAPS=(my list of taps)
 
 #-----------------------------------------------------------------------------
 updater() {
