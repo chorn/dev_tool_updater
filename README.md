@@ -4,6 +4,28 @@
 
 A shell script framework to keep all of my development tools up to date.
 
+
+DTU current supports updating and installing preferred lists of packages from:
+
+> General tools
+
+- [Homebrew](brew.sh) (itself)
+- [Homebrew](brew.sh) (packages)
+- [GHQ](github.com/motemen/ghq)
+- [ASDF](github.com/asdf-vm/asdf)
+
+> Languages
+
+- [Ruby Gems](rubygems.org)
+- [NodeJS packages](npmjs.com)
+- [Python packages](pypi.python.org/pypi) [`python2` and `python3`]
+- [Rust packages](crates.io)
+
+> Editors
+
+- [Atom packages](atom.io)
+- [Vim Plug Packages](github.com/junegunn/vim-plug) [`vim` and `neovim`]
+
 # Why
 
 - I really like to keep my development tools up-to-date. Not bleeding edge, not unstable, but pretty close to the current production release of everything.
@@ -50,7 +72,15 @@ declare -xa DTU_NPMS=(ternjs yarn)
 declare -xa DTU_CARGOS=(parallel ripgrep)
 ```
 
+# To-do
+
+- Use a config file instead of this silly ENV business.
+- Add support for more tools.
+- Add an installer that makes a default config and sets up your `$PATH`.
+- Add a `detect()` function that detects tools.
+
 # Contributing
 
+- Each script in the `updaters` has to define an `updater()` function.
 - You will make my day.
 
