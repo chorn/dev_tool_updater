@@ -4,6 +4,7 @@
 
 A shell script framework to keep all of my development tools up to date.
 
+[![asciicast](https://asciinema.org/a/1wocbwd2L4woKevyT39gEz1O5.png?loop=1&autoplay=1&speed=8)](https://asciinema.org/a/1wocbwd2L4woKevyT39gEz1O5?loop=1&autoplay=1&speed=8)
 
 DTU current supports updating and installing preferred lists of packages from:
 
@@ -30,7 +31,7 @@ DTU current supports updating and installing preferred lists of packages from:
 
 - I really like to keep my development tools up-to-date. Not bleeding edge, not unstable, but pretty close to the current production release of everything.
 - When I switch between projects, the global utilities I use are not always direct dependencies within the project, but I want them to be installed in each version of a language or framework I'm using.
-- I'm really lazy and I want one command to rule the all.
+- I'm really lazy and I want one command to rule them all.
 
 # How
 
