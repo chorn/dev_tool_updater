@@ -11,14 +11,14 @@ updater() {
 
   local -A _missing
 
-  for _brew in ${DTU_BREWS[@]} ; do
+  for _brew in ${tools[@]} ; do
     _missing[${_brew}]=todo
   done
 
   while read -r _installed ; do
     [[ "${_missing[${_installed}]}" == "todo" ]] || continue
 
-    for _brew in ${DTU_BREWS[@]} ; do
+    for _brew in ${tools[@]} ; do
       if [[ "$_brew" == "$_installed" ]] ; then
         unset _missing[${_installed}]
       fi

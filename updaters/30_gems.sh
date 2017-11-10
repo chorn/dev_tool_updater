@@ -9,14 +9,14 @@ updater() {
   local -A _installed
   local -A _missing
 
-  for _gem in ${DTU_GEMS[@]} ; do
+  for _gem in ${tools[@]} ; do
     _missing[${_gem}]=todo
   done
 
   while read -r _todo ; do
     [[ "${_missing[${_todo}]}" == "todo" ]] || continue
 
-    for _gem in ${DTU_GEMS[@]} ; do
+    for _gem in ${tools[@]} ; do
       if [[ "$_gem" == "$_todo" ]] ; then
         _installed[${_todo}]=yes
         unset _missing[${_todo}]
