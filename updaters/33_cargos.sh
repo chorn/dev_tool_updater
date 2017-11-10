@@ -7,7 +7,7 @@
 updater() {
   command -v cargo >& /dev/null || return
 
-  for _cargo in ${DTU_CARGOS[@]} ; do
+  for _cargo in ${tools[@]} ; do
     cargo install --list | grep -q "^${_cargo}" || cargo install "$_cargo"
   done
 }

@@ -62,20 +62,192 @@ You are now to get _some_ use out of DTU.
 
 # Configuration
 
-Depending on which shell you use, you can add some envionment defintions so that DTU knows what things you want to keep installed and updated. Here's a sample you could add to `.bashrc`, `.zshenv`, etc...
+The DTU config file is `$HOME/.dtu`.
+
+Mine looks like this:
 
 ```
-declare -xa DTU_BREW_TAPS=(neovim/neovim)
-declare -xa DTU_BREWS=(asciiquarium neovim)
-declare -xa DTU_GEMS=(gem-ctags neovim)
-declare -xa DTU_PIPS=(doge neovim)
-declare -xa DTU_NPMS=(ternjs yarn)
-declare -xa DTU_CARGOS=(parallel ripgrep)
+# This is a comment
+
+brew:
+  sidaf/pentest       # This is also a comment
+  caskroom/fonts
+  caskroom/drivers
+
+brewed:
+  arping
+  asciiquarium
+  bash
+  bash-completion
+  bundler-completion
+  catimg
+  checkbashisms
+  cmake
+  coreutils
+  cscope
+  csv-fix
+  ctags
+  curl
+  direnv
+  docker-clean
+  docker-completion
+  docker-compose-completion
+  emojify
+  exercism
+  fasd
+  fdupes
+  ffmpeg
+  figlet
+  gem-completion
+  ghq
+  gibo
+  gist
+  git
+  git-extras
+  git-hooks
+  git-lfs
+  gnu-sed
+  gnu-tar
+  gnu-time
+  graphicsmagick
+  graphviz
+  hadolint
+  heroku
+  html2text
+  htop
+  imagemagick
+  jq
+  lame
+  leiningen
+  less
+  lua
+  luajit
+  macvim
+  miniupnpc
+  mmv
+  mosh
+  moreutils
+  msgpack
+  mtr
+  neovim
+  netcat
+  nethack
+  nmap
+  no-more-secrets
+  open-completion
+  openssh
+  openssl
+  osxutils
+  p7zip
+  phantomjs
+  pidof
+  pv
+  python
+  python3
+  qpdf
+  rails-completion
+  rake-completion
+  recode
+  redis
+  rmlint
+  rsync
+  ruby
+  ruby-build
+  ruby-completion
+  sdl
+  sdl2
+  sdl_net
+  sdl_sound
+  shellcheck
+  socat
+  spring-completion
+  sqlite
+  ssh-copy-id
+  tcping
+  the_silver_searcher
+  tidy-html5
+  tmate
+  tmux
+  tofrodos
+  uni2ascii
+  vim
+  webp
+  wget
+  x264
+  x265
+  xvid
+  xz
+  youtube-dl
+  zlib
+  zsh
+
+gems:
+  brakeman
+  foodcritic
+  haml_lint
+  mdl
+  slim_lint
+  sqlint
+  pry-byebug
+  pry-doc
+  did_you_mean
+  did_you_mean
+  looksee
+  irbtools
+  irbtools-more
+  wirb
+  gem-ctags
+  gem-browse
+  ripper-tags
+  neovim
+  travis
+  cucumber_lint
+  cocoapods
+
+pips:
+  ansible-lint
+  proselint
+  vim-vint
+  yamllint
+  doge
+  neovim
+
+
+npms:
+  babel-eslint
+  eslint
+  eslint-config-prettier
+  eslint-config-standard
+  eslint-plugin-flowtype
+  eslint-plugin-import
+  eslint-plugin-jasmine
+  eslint-plugin-jest
+  eslint-plugin-node
+  eslint-plugin-prettier
+  eslint-plugin-promise
+  eslint-plugin-react
+  eslint-plugin-standard
+  jasmine
+  jest-cli
+  neovim-client
+  prettier
+  prettier-eslint-cli
+  react-devtools
+  stylelint
+  ternjs
+  yarn
+
+cargos:
+  parallel
+  racer
+  ripgrep
+  svgbob_cli
+  xsv
 ```
+
 
 # To-do
 
-- Use a config file instead of this silly ENV business.
 - Add support for more tools.
 - Add an installer that makes a default config and sets up your `$PATH`.
 - Add a `detect()` function that detects tools.

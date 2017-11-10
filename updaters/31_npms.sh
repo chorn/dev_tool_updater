@@ -10,14 +10,14 @@ updater() {
 
   npm update --global
 
-  for _npm in ${DTU_NPMS[@]} ; do
+  for _npm in ${tools[@]} ; do
     _missing[${_npm}]=todo
   done
 
   while read -r _installed ; do
     [[ "${_missing[${_installed}]}" == "todo" ]] || continue
 
-    for _npm in ${DTU_NPMS[@]} ; do
+    for _npm in ${tools[@]} ; do
       if [[ "$_npm" == "$_installed" ]] ; then
         unset _missing[${_installed}]
       fi

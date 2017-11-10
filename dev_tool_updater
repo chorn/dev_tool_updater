@@ -18,15 +18,32 @@ if [[ ! -d "$dtu_updaters_path" ]] ; then
   exit 1
 fi
 #-----------------------------------------------------------------------------
-declare -a updaters=$(find -s "$dtu_updaters_path" -type f -name '*.sh')
+parse_config() {
+  local _file="$1"
+  [[ -s "$_file" ]] || return
 
-#-----------------------------------------------------------------------------
-pretty() {
-  local _script="$1"
-  local _name=$(basename "$_script")
-  [[ "${_name:2:1}" == '_' ]] && _name="${_name:3}"
-  echo "${_name%%.sh}"
+  local _pretty
+  local _blank='^\s*$'
+  local _comment='^\s*#'
+
+  mapfile -t _raw_config < "$_file"
+
+  # for i in {0..${#_raw_config[@]}} ; do
+  for (( i = 0 ; i <= ${#_raw_config[@]} ; i++ )) ; do
+    local _line="${_raw_config[$i]}"
+
+    [[ "$_line" =~ $_blank ]] && continue
+    [[ "$_line" =~ $_comment ]] && continue
+
+    if [[ "$_line" =~ ^[[:space:]]*([^[:space:]]+)[[:space:]]*:.*$ ]] ; then
+      _pretty="${BASH_REMATCH[1]}"
+    elif [[ "$_line" =~ ^[[:space:]]*([^#[:space:]]+)[[:space:]]*.*$ ]] ; then
+      _configs[$_pretty]="${_configs[$_pretty]} ${BASH_REMATCH[1]}"
+      _configs[$_pretty]="${_configs[$_pretty]## }"
+    fi
+  done
 }
+
 #-----------------------------------------------------------------------------
 usage() {
   cat <<USAGE
@@ -50,37 +67,65 @@ broken() {
   exit 1
 }
 #-----------------------------------------------------------------------------
+pretty() {
+  local _script="$1"
+  local _name=$(basename "$_script")
+  [[ "${_name:2:1}" == '_' ]] && _name="${_name:3}"
+  echo "${_name%%.sh}"
+}
+#-----------------------------------------------------------------------------
 run_one() {
   local _script="$1"
+  local _output_style="$2"
+  local _pretty=$(pretty "$_script")
 
   if [[ ! -s "$_script" ]] ; then
     echo "$_script is missing or empty."
     exit 1
   fi
 
-  declare updater
+  unset -f updater
+  unset tools
+
+  [[ -n "${_configs[$_pretty]}" ]] && mapfile -d ' ' -t tools < <(echo -n "${_configs[$_pretty]}")
+
   source "$_script"
   declare -fp updater >&/dev/null || broken "$_script"
 
-  updater
+  case "$_output_style" in
+    tabbed)
+      _tmp=$(mktemp)
+      echo -ne "$_pretty \t>>\t"
+
+      if updater "$_script" >&"$_tmp" ; then
+        echo 'ok'
+      else
+        echo 'err'
+        [[ -s "$_tmp" ]] && cat "$_tmp"
+      fi
+
+      rm "$_tmp"
+      ;;
+    quiet)
+      updater >& /dev/null
+      ;;
+    *)
+      updater
+      ;;
+  esac
 }
 #-----------------------------------------------------------------------------
 run_all() {
   for _script in ${updaters[@]} ; do
-    _tmp=$(mktemp)
-    echo -ne "$(pretty "$_script") \t>>\t"
-
-    if run_one "$_script" >&"$_tmp" ; then
-      echo 'ok'
-    else
-      echo 'err'
-      [[ -s "$_tmp" ]] && cat "$_tmp"
-    fi
-
-    rm "$_tmp"
+    run_one "$_script" tabbed
   done
 }
 #-----------------------------------------------------------------------------
+declare -a updaters=$(find -s "$dtu_updaters_path" -type f -name '*.sh')
+declare -A _configs
+parse_config "$HOME/.dtu"
+#-----------------------------------------------------------------------------
+
 [[ $# -gt 0 ]] || usage
 
 for _command in "$@" ; do
