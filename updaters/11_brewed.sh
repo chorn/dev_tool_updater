@@ -1,31 +1,22 @@
-#!/usr/bin/env bash
-
-# CONFIG
-#  declare -xa DTU_BREWEW=(my list of brews)
-
 #-----------------------------------------------------------------------------
 updater() {
   command -v brew >& /dev/null || return
 
   brew upgrade
 
-  local -A _missing
-
-  for _brew in ${tools[@]} ; do
-    _missing[${_brew}]=todo
-  done
+  [[ -z ${tools[*]} ]] && return 0
 
   while read -r _installed ; do
-    [[ "${_missing[${_installed}]}" == "todo" ]] || continue
-
-    for _brew in ${tools[@]} ; do
-      if [[ "$_brew" == "$_installed" ]] ; then
-        unset _missing[${_installed}]
-      fi
+    for (( i = 0 ; i <= ${#tools[@]} ; i++ )) ; do
+      [[ "${tools[$i]}" == "__found__" ]] && continue
+      [[ "$_installed" == "${tools[$i]}" ]] && tools[$i]="__found__"
     done
   done < <(brew list --versions | cut -f 1 -d ' ')
 
-  [[ -z ${!_missing[*]} ]] && return 0
+  local -a tools=($(echo ${tools[@]} | sed -e 's/__found__//g' -e 's/  */ /g'))
 
-  brew install ${!_missing[@]}
+  [[ -z "${tools[*]}" ]] && return 0
+
+  brew install ${tools[@]}
 }
+#-----------------------------------------------------------------------------

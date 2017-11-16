@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 #-----------------------------------------------------------------------------
 updater() {
   command -v vim >& /dev/null || return
@@ -7,3 +5,4 @@ updater() {
 
   vim --not-a-term +PlugUpgrade +PlugUpdate +PlugClean\! +qall
 }
+#-----------------------------------------------------------------------------

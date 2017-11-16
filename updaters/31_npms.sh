@@ -1,29 +1,28 @@
-#!/usr/bin/env bash
-
-# CONFIG
-#  declare -xa DTU_NPMS=(my list of npms)
-
 #-----------------------------------------------------------------------------
 updater() {
   command -v npm >& /dev/null || return
-  local -A _missing
+  [[ -z ${tools[*]} ]] && return
 
-  npm update --global
+  local -a found
+  local -a missing
 
-  for _npm in ${tools[@]} ; do
-    _missing[${_npm}]=todo
-  done
-
-  while read -r _installed ; do
-    [[ "${_missing[${_installed}]}" == "todo" ]] || continue
-
-    for _npm in ${tools[@]} ; do
-      if [[ "$_npm" == "$_installed" ]] ; then
-        unset _missing[${_installed}]
-      fi
+  while read -r installed ; do
+    for tool in ${tools[@]} ; do
+      [[ "$installed" == "$tool" ]] && found+=($tool) && break
     done
   done < <(npm list --global --depth=0 | grep '@' | sed -e 's/^.* //' -e 's/@.*$//')
 
-  [[ -z ${!_missing[*]} ]] && return 0
-  npm install -g ${!_missing[@]}
+  for tool in ${tools[@]} ; do
+    __missing='yes'
+
+    for __found in ${found[@]} ; do
+      [[ "$__found" == "$tool" ]] && __missing='no' && break
+    done
+
+    [[ "$__missing" == 'yes' ]] && missing+=($tool)
+  done
+
+  [[ -n "${found[*]}" ]] && npm update --global ${found[@]}
+  [[ -z "${missing[*]}" ]] && npm install --global ${missing[@]}
 }
+#-----------------------------------------------------------------------------

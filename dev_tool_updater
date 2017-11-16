@@ -1,5 +1,5 @@
+#!/bin/bash
 #!/usr/bin/env bash
-
 #-----------------------------------------------------------------------------
 declare dtu_base=$(
   _program="$0"
@@ -18,32 +18,35 @@ if [[ ! -d "$dtu_updaters_path" ]] ; then
   exit 1
 fi
 #-----------------------------------------------------------------------------
+declare -a updaters=$(find -s "$dtu_updaters_path" -type f -name '*.sh')
+#-----------------------------------------------------------------------------
+[[ $# -gt 0 ]] || usage
+#-----------------------------------------------------------------------------
 parse_config() {
   local _file="$1"
+  local _only="$2"
+  [[ -n "$_only" ]] || return
   [[ -s "$_file" ]] || return
 
   local _pretty
   local _blank='^\s*$'
   local _comment='^\s*#'
 
-  mapfile -t _raw_config < "$_file"
+  local -a _config
 
-  # for i in {0..${#_raw_config[@]}} ; do
-  for (( i = 0 ; i <= ${#_raw_config[@]} ; i++ )) ; do
-    local _line="${_raw_config[$i]}"
-
+  while read -r _line ; do
     [[ "$_line" =~ $_blank ]] && continue
     [[ "$_line" =~ $_comment ]] && continue
 
     if [[ "$_line" =~ ^[[:space:]]*([^[:space:]]+)[[:space:]]*:.*$ ]] ; then
       _pretty="${BASH_REMATCH[1]}"
     elif [[ "$_line" =~ ^[[:space:]]*([^#[:space:]]+)[[:space:]]*.*$ ]] ; then
-      _configs[$_pretty]="${_configs[$_pretty]} ${BASH_REMATCH[1]}"
-      _configs[$_pretty]="${_configs[$_pretty]## }"
+      [[ "$_only" == "$_pretty" ]] && _config+=(${BASH_REMATCH[1]})
     fi
-  done
-}
+  done < "$_file"
 
+  echo "${_config[@]}"
+}
 #-----------------------------------------------------------------------------
 usage() {
   cat <<USAGE
@@ -85,12 +88,9 @@ run_one() {
   fi
 
   unset -f updater
-  unset tools
-
-  [[ -n "${_configs[$_pretty]}" ]] && mapfile -d ' ' -t tools < <(echo -n "${_configs[$_pretty]}")
-
+  local -a tools=($(parse_config "$HOME/.dtu" "$_pretty"))
   source "$_script"
-  declare -fp updater >&/dev/null || broken "$_script"
+  declare -f updater >&/dev/null || broken "$_script"
 
   case "$_output_style" in
     tabbed)
@@ -121,13 +121,6 @@ run_all() {
   done
 }
 #-----------------------------------------------------------------------------
-declare -a updaters=$(find -s "$dtu_updaters_path" -type f -name '*.sh')
-declare -A _configs
-parse_config "$HOME/.dtu"
-#-----------------------------------------------------------------------------
-
-[[ $# -gt 0 ]] || usage
-
 for _command in "$@" ; do
   case "$_command" in
     -h|help) usage ;;
@@ -135,3 +128,4 @@ for _command in "$@" ; do
     *) run_one "$dtu_updaters_path/"??"_${_command}.sh" ;;
   esac
 done
+#-----------------------------------------------------------------------------

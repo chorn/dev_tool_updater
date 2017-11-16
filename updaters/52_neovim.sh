@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 #-----------------------------------------------------------------------------
 updater() {
   command -v nvim >& /dev/null || return
@@ -7,3 +5,4 @@ updater() {
 
   nvim --headless +UpdateRemotePlugins +PlugUpgrade +PlugUpdate +PlugClean\! +qall
 }
+#-----------------------------------------------------------------------------

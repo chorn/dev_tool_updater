@@ -1,30 +1,28 @@
-#!/usr/bin/env bash
-
-# CONFIG
-#  declare -xa DTU_GEMS=(my list of gems)
-
 #-----------------------------------------------------------------------------
 updater() {
   command -v gem >& /dev/null || return
-  local -A _installed
-  local -A _missing
+  [[ -z ${tools[*]} ]] && return
 
-  for _gem in ${tools[@]} ; do
-    _missing[${_gem}]=todo
-  done
+  local -a found
+  local -a missing
 
-  while read -r _todo ; do
-    [[ "${_missing[${_todo}]}" == "todo" ]] || continue
-
-    for _gem in ${tools[@]} ; do
-      if [[ "$_gem" == "$_todo" ]] ; then
-        _installed[${_todo}]=yes
-        unset _missing[${_todo}]
-      fi
+  while read -r installed ; do
+    for tool in ${tools[@]} ; do
+      [[ "$installed" == "$tool" ]] && found+=($tool) && break
     done
   done < <(gem list | cut -f 1 -d ' ')
 
-  [[ -n ${!_installed[*]} ]] && gem update --silent ${!_installed[@]}
-  [[ -z ${!_missing[*]} ]] && return 0
-  gem install --silent ${!_missing[@]}
+  for tool in ${tools[@]} ; do
+    __missing='yes'
+
+    for __found in ${found[@]} ; do
+      [[ "$__found" == "$tool" ]] && __missing='no' && break
+    done
+
+    [[ "$__missing" == 'yes' ]] && missing+=($tool)
+  done
+
+  [[ -n "${found[*]}" ]] && gem update --silent ${found[@]}
+  [[ -z "${missing[*]}" ]] && gem install --silent ${missing[@]}
 }
+#-----------------------------------------------------------------------------

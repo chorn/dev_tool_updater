@@ -1,8 +1,3 @@
-#!/usr/bin/env bash
-
-# CONFIG
-#  declare -xa DTU_BREW_TAPS=(my list of taps)
-
 #-----------------------------------------------------------------------------
 updater() {
   command -v brew >& /dev/null || return
