@@ -1,10 +1,7 @@
-#!/usr/bin/env bash
-
-# CONFIG
-#  declare -xa DTU_PIPS=(my list of pips)
-
 #-----------------------------------------------------------------------------
 updater() {
+  [[ -z ${tools[*]} ]] && return
+
   for cmd in pip2 pip3 ; do
     command -v $cmd >& /dev/null || continue
 
@@ -15,3 +12,4 @@ updater() {
     $cmd --quiet install --upgrade ${_pips[@]} >&/dev/null
   done
 }
+#-----------------------------------------------------------------------------
