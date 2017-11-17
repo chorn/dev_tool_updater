@@ -33,10 +33,31 @@ DTU current supports updating and installing preferred lists of packages from:
 - When I switch between projects, the global utilities I use are not always direct dependencies within the project, but I want them to be installed in each version of a language or framework I'm using.
 - I'm really lazy and I want one command to rule them all.
 
-# How
+# Usage
 
-- bash
-- I apologize if the non-POSIX bash code is a deal breaker for you, because I really dislike plain old shell script. Yuck.
+```
+Usage: dev_tool_updater [options] <command> [command...]
+  OPTIONS:
+  -h, --help      This.
+  -q, --quiet     Run each updater with no output.
+  -t, --terse     Run each updater with terse, ok/error style output.
+  -v, --verbose   Run each updater with their natural output level.
+
+  COMMANDS:
+  all             Run all the updaters.
+  brew
+  brewed
+  ghq
+  asdf
+  gems
+  npms
+  pips
+  cargos
+  atom
+  vim
+  neovim
+  gits
+```
 
 # Install
 
@@ -243,6 +264,10 @@ cargos:
   ripgrep
   svgbob_cli
   xsv
+
+gits:
+  $HOME/src
+  $HOME/.config
 ```
 
 

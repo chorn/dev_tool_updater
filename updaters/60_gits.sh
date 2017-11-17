@@ -11,7 +11,7 @@ updater() {
       cd "$_dir"
       git diff --cached --exit-code >&/dev/null || continue
       git diff --exit-code >&/dev/null || continue
-      git pull --quiet || echo "Problem with git in $_git_dir"
+      git pull || echo "Problem with git in $_git_dir"
     done < <(find "$tool" -maxdepth 3 -mindepth 1 -type d -name .git)
   done
 }

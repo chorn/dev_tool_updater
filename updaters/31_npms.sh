@@ -23,6 +23,6 @@ updater() {
   done
 
   [[ -n "${found[*]}" ]] && npm update --global ${found[@]}
-  [[ -z "${missing[*]}" ]] && npm install --global ${missing[@]}
+  [[ -n "${missing[*]}" ]] && npm install --global ${missing[@]}
 }
 #-----------------------------------------------------------------------------
