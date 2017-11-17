@@ -12,6 +12,7 @@ updater() {
     done
   done < <(gem list | cut -f 1 -d ' ')
 
+
   for tool in ${tools[@]} ; do
     __missing='yes'
 
@@ -22,7 +23,7 @@ updater() {
     [[ "$__missing" == 'yes' ]] && missing+=($tool)
   done
 
-  [[ -n "${found[*]}" ]] && gem update --silent ${found[@]}
-  [[ -z "${missing[*]}" ]] && gem install --silent ${missing[@]}
+  [[ -n "${found[*]}" ]] && gem update ${found[@]}
+  [[ -n "${missing[*]}" ]] && gem install ${missing[@]}
 }
 #-----------------------------------------------------------------------------

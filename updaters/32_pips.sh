@@ -9,7 +9,7 @@ updater() {
       $cmd show "$_pip" >&/dev/null || $cmd install "$_pip"
     done
 
-    $cmd --quiet install --upgrade ${_pips[@]} >&/dev/null
+    $cmd install --upgrade ${_pips[@]} >&/dev/null
   done
 }
 #-----------------------------------------------------------------------------

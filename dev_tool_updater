@@ -1,5 +1,4 @@
 #!/bin/bash
-#!/usr/bin/env bash
 #-----------------------------------------------------------------------------
 declare dtu_base=$(
   _program="$0"
@@ -10,17 +9,34 @@ declare dtu_base=$(
   [[ -L "$_program" ]] && _program=$(readlink "$_program")
   cd -P -- "$(dirname -- "$_program")" && pwd -P
 )
+#-----------------------------------------------------------------------------
+pretty() {
+  local _script="$1"
+  local _name=$(basename "$_script")
+  [[ "${_name:2:1}" == '_' ]] && _name="${_name:3}"
+  echo "${_name%%.sh}"
+}
+#-----------------------------------------------------------------------------
+usage() {
+  cat <<USAGE
+Usage: ${0##*/} [options] <command> [command...]
+  OPTIONS:
+  -h, --help      This.
+  -q, --quiet     Run each updater with no output.
+  -t, --terse     Run each updater with terse, ok/error style output.
+  -v, --verbose   Run each updater with their natural output level.
 
-declare dtu_updaters_path="$dtu_base/updaters"
-#-----------------------------------------------------------------------------
-if [[ ! -d "$dtu_updaters_path" ]] ; then
-  echo "$0 could not find '$dtu_updaters_path'"
+  COMMANDS:
+  all             Run all the updaters.
+USAGE
+
+  for _script in ${updaters[@]} ; do
+    echo -n '  '
+    pretty "$_script"
+  done
+
   exit 1
-fi
-#-----------------------------------------------------------------------------
-declare -a updaters=$(find -s "$dtu_updaters_path" -type f -name '*.sh')
-#-----------------------------------------------------------------------------
-[[ $# -gt 0 ]] || usage
+}
 #-----------------------------------------------------------------------------
 parse_config() {
   local _file="$1"
@@ -48,33 +64,11 @@ parse_config() {
   echo "${_config[@]}"
 }
 #-----------------------------------------------------------------------------
-usage() {
-  cat <<USAGE
-Usage: ${0##*/} <command> [command...]
-  COMMANDS:
-  all     Run all updates
-USAGE
-
-  for _script in ${updaters[@]} ; do
-    echo -n '  '
-    pretty "$_script"
-  done
-
-  exit 1
-}
-#-----------------------------------------------------------------------------
 broken() {
   local _script="$1"
 
   echo "$_script doesn't appear to define an 'updater' function"
   exit 1
-}
-#-----------------------------------------------------------------------------
-pretty() {
-  local _script="$1"
-  local _name=$(basename "$_script")
-  [[ "${_name:2:1}" == '_' ]] && _name="${_name:3}"
-  echo "${_name%%.sh}"
 }
 #-----------------------------------------------------------------------------
 run_one() {
@@ -93,7 +87,7 @@ run_one() {
   declare -f updater >&/dev/null || broken "$_script"
 
   case "$_output_style" in
-    tabbed)
+    terse)
       _tmp=$(mktemp)
       echo -ne "$_pretty \t>>\t"
 
@@ -110,22 +104,39 @@ run_one() {
       updater >& /dev/null
       ;;
     *)
+      echo "Running updater $_pretty ($_script)"
       updater
       ;;
   esac
 }
 #-----------------------------------------------------------------------------
 run_all() {
+  local _output_style="$1"
   for _script in ${updaters[@]} ; do
-    run_one "$_script" tabbed
+    run_one "$_script" "$_output_style"
   done
 }
+#-----------------------------------------------------------------------------
+declare dtu_updaters_path="$dtu_base/updaters"
+
+if [[ ! -d "$dtu_updaters_path" ]] ; then
+  echo "$0 could not find '$dtu_updaters_path'"
+  exit 1
+fi
+
+declare -a updaters=$(find -s "$dtu_updaters_path" -type f -name '*.sh')
+
+[[ $# -gt 0 ]] || usage
+declare _output_style
 #-----------------------------------------------------------------------------
 for _command in "$@" ; do
   case "$_command" in
     -h|help) usage ;;
-    all) run_all ;;
-    *) run_one "$dtu_updaters_path/"??"_${_command}.sh" ;;
+    -t|--terse) _output_style='terse' ;;
+    -q|--quiet) _output_style='quiet' ;;
+    -v|--verbose) _output_style='verbose' ;;
+    all) run_all ${_output_style:terse} ;;
+    *) run_one "$dtu_updaters_path/"??"_${_command}.sh" ${_output_style} ;;
   esac
 done
 #-----------------------------------------------------------------------------
