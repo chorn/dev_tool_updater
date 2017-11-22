@@ -90,7 +90,7 @@ run_one() {
   source "$_script"
   declare -f updater >&/dev/null || broken "$_script"
   local -a tools=($(parse_config "$HOME/.dtu" "$_pretty"))
-  local outfile=$(mktemp -t DTU)
+  local outfile=$(mktemp -t DTU.XXXXX)
   temp_files+=($outfile)
   local console="/dev/null"
 
