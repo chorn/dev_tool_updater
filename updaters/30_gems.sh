@@ -1,7 +1,7 @@
 #-----------------------------------------------------------------------------
 updater() {
-  command -v gem >& /dev/null || return
-  [[ -z ${tools[*]} ]] && return
+  command -v gem >& /dev/null || return 86
+  [[ -z "${tools[*]}" ]] && return
 
   local -a found
   local -a missing
@@ -23,7 +23,7 @@ updater() {
     [[ "$__missing" == 'yes' ]] && missing+=($tool)
   done
 
-  [[ -n "${found[*]}" ]] && gem update ${found[@]}
   [[ -n "${missing[*]}" ]] && gem install ${missing[@]}
+  [[ -n "${found[*]}" ]] && gem update ${found[@]}
 }
 #-----------------------------------------------------------------------------

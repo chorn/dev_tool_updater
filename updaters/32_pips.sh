@@ -1,6 +1,7 @@
 #-----------------------------------------------------------------------------
 updater() {
-  [[ -z ${tools[*]} ]] && return
+  command -v pip2 pip3 >& /dev/null || return 86
+  [[ -z "${tools[*]}" ]] && return
 
   for cmd in pip2 pip3 ; do
     command -v $cmd >& /dev/null || continue

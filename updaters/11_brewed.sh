@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------------
 updater() {
-  command -v brew >& /dev/null || return
+  command -v brew >& /dev/null || return 86
 
   brew upgrade
 

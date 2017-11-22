@@ -1,7 +1,7 @@
 #-----------------------------------------------------------------------------
 updater() {
-  command -v npm >& /dev/null || return
-  [[ -z ${tools[*]} ]] && return
+  command -v npm >& /dev/null || return 86
+  [[ -z "${tools[*]}" ]] && return
 
   local -a found
   local -a missing

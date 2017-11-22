@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------------
 updater() {
-  command -v brew >& /dev/null || return
+  command -v brew >& /dev/null || return 86
 
   for _tap in ${tools[@]} ; do
     brew tap | grep -qi "$_tap" || brew tap "$_tap"
