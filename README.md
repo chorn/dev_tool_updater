@@ -276,6 +276,7 @@ gits:
 - Add support for more tools.
 - Add an installer that makes a default config and sets up your `$PATH`.
 - Add a `detect()` function that detects tools.
+- Add a `description()` function to each updater that describes what it does.
 
 # Contributing
 

@@ -1,7 +1,7 @@
 #-----------------------------------------------------------------------------
 updater() {
-  command -v git >& /dev/null || return
-  [[ -z ${tools[*]} ]] && return
+  command -v git >& /dev/null || return 86
+  [[ -z "${tools[*]}" ]] && return
 
   for tool in ${tools[@]} ; do
     tool=$(eval "echo ${tool}")

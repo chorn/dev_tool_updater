@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------------
 updater() {
-  command -v asdf >& /dev/null || return
+  command -v asdf >& /dev/null || return 86
 
   asdf update --head
   asdf plugin-update --all
