@@ -100,7 +100,7 @@ run_one() {
       ;;
     verbose)
       echo "Running updater $_pretty ($_script)"
-      console="/dev/console"
+      console="/dev/stdout"
       ;;
   esac
 
