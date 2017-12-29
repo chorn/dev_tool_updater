@@ -10,22 +10,22 @@ DTU current supports updating and installing preferred lists of packages from:
 
 > General tools
 
-- [Homebrew](brew.sh) (itself)
-- [Homebrew](brew.sh) (packages)
-- [GHQ](github.com/motemen/ghq)
-- [ASDF](github.com/asdf-vm/asdf)
+- [Homebrew](https://brew.sh) (itself)
+- [Homebrew](https://brew.sh) (packages)
+- [GHQ](https://github.com/mobrew.shtemen/ghq)
+- [ASDF](https://github.com/asdf-vm/asdf)
 
 > Languages
 
-- [Ruby Gems](rubygems.org)
-- [NodeJS packages](npmjs.com)
-- [Python packages](pypi.python.org/pypi) [`python2` and `python3`]
-- [Rust packages](crates.io)
+- [Ruby Gems](https://rubygems.org)
+- [NodeJS packages](https://npmjs.com)
+- [Python packages](https://pypi.python.org/pypi) [`python2` and `python3`]
+- [Rust packages](https://crates.io)
 
 > Editors
 
-- [Atom packages](atom.io)
-- [Vim Plug Packages](github.com/junegunn/vim-plug) [`vim` and `neovim`]
+- [Atom packages](https://atom.io)
+- [Vim Plug Packages](https://github.com/junegunn/vim-plug) [`vim` and `neovim`]
 
 # Why
 
