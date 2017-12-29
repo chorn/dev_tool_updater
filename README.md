@@ -12,7 +12,7 @@ DTU current supports updating and installing preferred lists of packages from:
 
 - [Homebrew](https://brew.sh) (itself)
 - [Homebrew](https://brew.sh) (packages)
-- [GHQ](https://github.com/mobrew.shtemen/ghq)
+- [GHQ](https://github.com/motemen/ghq)
 - [ASDF](https://github.com/asdf-vm/asdf)
 
 > Languages
