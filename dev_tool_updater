@@ -65,8 +65,8 @@ parse_config() {
 
     if [[ "$_line" =~ ^[[:space:]]*([^[:space:]]+)[[:space:]]*:.*$ ]] ; then
       _pretty="${BASH_REMATCH[1]}"
-    elif [[ "$_line" =~ ^[[:space:]]*([^#[:space:]]+)[[:space:]]*.*$ ]] ; then
-      [[ "$_only" == "$_pretty" ]] && _config+=(${BASH_REMATCH[1]})
+    elif [[ "$_only" == "$_pretty" && "$_line" =~ ^[[:space:]]*([^#[:space:]]+)[[:space:]]*.*$ ]] ; then
+      _config+=(${BASH_REMATCH[1]})
     fi
   done < "$_file"
 
@@ -79,6 +79,47 @@ broken() {
   echo "$_script doesn't appear to define an 'updater' function"
   exit 1
 }
+#-----------------------------------------------------------------------------
+basic_list_install_and_upgrade() {
+  local _cmd="$1"
+  local _install="$2"
+  local _upgrade="$3"
+  local _list="$4"
+
+  command -v $_cmd >&/dev/null || return 86
+  [[ -z "${tools[*]}" ]] && return 87
+
+  local -a found
+  local -a missing
+
+  while read -r _installed ; do
+    for tool in ${tools[@]} ; do
+      [[ "$_installed" == "$tool" ]] && found+=($tool) && break
+    done
+  done < <(eval $_list)
+
+  for tool in ${tools[@]} ; do
+    _missing='yes'
+
+    for _found in ${found[@]} ; do
+      [[ "$_found" == "$tool" ]] && _missing='no' && break
+    done
+
+    [[ "$_missing" == 'yes' ]] && missing+=($tool)
+  done
+
+  if [[ -n "${missing[*]}" ]] ; then
+    [[ -n $DTU_VERBOSE ]] && echo "DTU: $_install ${missing[@]}"
+    $_install ${missing[@]} >&/dev/null
+  fi
+
+  if [[ -n "${found[*]}" ]] ; then
+    [[ -n $DTU_VERBOSE ]] && echo "DTU: $_upgrade ${found[@]}"
+    $_upgrade ${found[@]} >&/dev/null
+  fi
+}
+
+
 #-----------------------------------------------------------------------------
 run_one() {
   local _script="$1"
@@ -113,6 +154,7 @@ run_one() {
   case $status in
     0) echo 'ok' ;;
     86) echo 'not present' ;;
+    87) echo 'no tools configured' ;;
     *)
       echo 'err'
       [[ -s "$outfile" ]] && cat "$outfile"
@@ -137,7 +179,10 @@ main() {
       -h|help) usage ;;
       -t|--terse) _output_style='terse' ;;
       -q|--quiet) _output_style='quiet' ;;
-      -v|--verbose) _output_style='verbose' ;;
+      -v|--verbose)
+        _output_style='verbose'
+        DTU_VERBOSE=0
+        ;;
       all) run_all "${_output_style:-terse}" ;;
       *) run_one "$dtu_updaters_path/"??"_${_command}.sh" ${_output_style} ;;
     esac

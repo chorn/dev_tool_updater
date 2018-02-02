@@ -2,6 +2,7 @@
 updater() {
   command -v brew >& /dev/null || return 86
 
+  [[ -n $DTU_VERBOSE ]] && echo "DTU: brew upgrade"
   brew upgrade
 
   [[ -z ${tools[*]} ]] && return 0
@@ -17,6 +18,7 @@ updater() {
 
   [[ -z "${tools[*]}" ]] && return 0
 
+  [[ -n $DTU_VERBOSE ]] && echo "DTU: brew install ${tools[@]}"
   brew install ${tools[@]}
 }
 #-----------------------------------------------------------------------------

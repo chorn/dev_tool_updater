@@ -1,29 +1,5 @@
 #-----------------------------------------------------------------------------
 updater() {
-  command -v gem >& /dev/null || return 86
-  [[ -z "${tools[*]}" ]] && return
-
-  local -a found
-  local -a missing
-
-  while read -r installed ; do
-    for tool in ${tools[@]} ; do
-      [[ "$installed" == "$tool" ]] && found+=($tool) && break
-    done
-  done < <(gem list | cut -f 1 -d ' ')
-
-
-  for tool in ${tools[@]} ; do
-    __missing='yes'
-
-    for __found in ${found[@]} ; do
-      [[ "$__found" == "$tool" ]] && __missing='no' && break
-    done
-
-    [[ "$__missing" == 'yes' ]] && missing+=($tool)
-  done
-
-  [[ -n "${missing[*]}" ]] && gem install ${missing[@]}
-  [[ -n "${found[*]}" ]] && gem update ${found[@]}
+  basic_list_install_and_upgrade "gem" "gem install" "gem update" "gem list | cut -f 1 -d ' '"
 }
 #-----------------------------------------------------------------------------
