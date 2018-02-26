@@ -1,12 +1,5 @@
 #-----------------------------------------------------------------------------
 updater() {
-  command -v go >& /dev/null || return 86
-  [[ -z "${tools[*]}" ]] && return
-
-  for _pkg in ${tools[@]} ; do
-    [[ -n $DTU_VERBOSE ]] && echo "$_pkg"
-
-    go get -u "$_pkg"
-  done
+  basic_list_install_and_upgrade "ghq" "ghq get" "ghq get -u" "ghq list | sed -e 's/github\.com\///'" "one_at_a_time"
 }
 #-----------------------------------------------------------------------------

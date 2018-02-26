@@ -85,8 +85,9 @@ basic_list_install_and_upgrade() {
   local _install="$2"
   local _upgrade="$3"
   local _list="$4"
+  local _one_at_a_time="$5"
 
-  command -v $_cmd >&/dev/null || return 86
+  command -v "$_cmd" >&/dev/null || return 86
   [[ -z "${tools[*]}" ]] && return 87
 
   local -a found
@@ -94,9 +95,9 @@ basic_list_install_and_upgrade() {
 
   while read -r _installed ; do
     for tool in ${tools[@]} ; do
-      [[ "$_installed" == "$tool" ]] && found+=($tool) && break
+      [[ "$_installed" == "$tool" ]] && found+=("$tool") && break
     done
-  done < <(eval $_list)
+  done < <(eval "$_list")
 
   for tool in ${tools[@]} ; do
     _missing='yes'
@@ -105,17 +106,31 @@ basic_list_install_and_upgrade() {
       [[ "$_found" == "$tool" ]] && _missing='no' && break
     done
 
-    [[ "$_missing" == 'yes' ]] && missing+=($tool)
+    [[ "$_missing" == 'yes' ]] && missing+=("$tool")
   done
 
   if [[ -n "${missing[*]}" ]] ; then
-    [[ -n $DTU_VERBOSE ]] && echo "DTU: $_install ${missing[@]}"
-    $_install ${missing[@]} >&/dev/null
+    if [[ -z "$_one_at_a_time" ]] ; then
+      [[ -n $DTU_VERBOSE ]] && echo "DTU: $_install ${missing[*]}"
+      $_install ${missing[@]} >&/dev/null
+    else
+      for tool in ${missing[@]} ; do
+        [[ -n $DTU_VERBOSE ]] && echo "DTU: $_install $tool"
+        $_install "$tool" >&/dev/null
+      done
+    fi
   fi
 
   if [[ -n "${found[*]}" ]] ; then
-    [[ -n $DTU_VERBOSE ]] && echo "DTU: $_upgrade ${found[@]}"
-    $_upgrade ${found[@]} >&/dev/null
+    if [[ -z "$_one_at_a_time" ]] ; then
+      [[ -n $DTU_VERBOSE ]] && echo "DTU: $_upgrade ${found[*]}"
+      $_upgrade ${found[@]} >&/dev/null
+    else
+      for tool in ${found[@]} ; do
+        [[ -n $DTU_VERBOSE ]] && echo "DTU: $_upgrade $tool"
+        $_upgrade "$tool" >&/dev/null
+      done
+    fi
   fi
 }
 
@@ -132,12 +147,12 @@ run_one() {
   declare -f updater >&/dev/null || broken "$_script"
   local -a tools=($(parse_config "$HOME/.dtu" "$_pretty"))
   local outfile=$(mktemp -t DTU.XXXXX)
-  temp_files+=($outfile)
+  temp_files+=("$outfile")
   local console="/dev/null"
 
   case "$_output_style" in
     terse)
-      echo -ne "$_pretty \t>>\t"
+      echo -ne "$_pretty \\t>>\\t"
       ;;
     verbose)
       echo "Running updater $_pretty ($_script)"
