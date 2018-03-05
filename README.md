@@ -98,22 +98,25 @@ brewed:
   git
   git-extras
 
-gems:
+gem:
   gem-ctags
   gem-browse
 
-pips:
+pip:
   doge
 
-npms:
+npm:
   yarn
 
-cargos:
+cargo:
   ripgrep
 
-gits:
+git:
   $HOME/src
   $HOME/.config
+
+go:
+  github.com/ericchiang/pup
 ```
 
 # To-do
