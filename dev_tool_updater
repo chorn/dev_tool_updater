@@ -9,14 +9,13 @@ declare dtu_base=$(
   [[ -L "$_program" ]] && _program=$(readlink "$_program")
   cd -P -- "$(dirname -- "$_program")" && pwd -P
 )
-declare dtu_updaters_path="$dtu_base/updaters"
-declare -a updaters=$(find "$dtu_updaters_path" -type f -name '*.sh' | sort)
 declare -a temp_files
+declare dtu_updaters_path="$dtu_base/updaters"
+declare -a updaters=($(find "$dtu_updaters_path" -type f -name 'brew*.sh') $(find "$dtu_updaters_path" -type f -name '*.sh' -not -name 'brew*.sh' | sort))
 #-----------------------------------------------------------------------------
 pretty() {
   local _script="$1"
   local _name=$(basename "$_script")
-  [[ "${_name:2:1}" == '_' ]] && _name="${_name:3}"
   echo "${_name%%.sh}"
 }
 #-----------------------------------------------------------------------------

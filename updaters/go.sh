@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
 updater() {
-  basic_list_install_and_upgrade "ghq" "ghq get" "ghq get -u" "ghq list | sed -e 's/github\.com\///'" "one_at_a_time"
+  basic_list_install_and_upgrade "go" "go get" "go get -u" "go list -f '{{.Stale}} {{.ImportPath}}' ... | grep '^true' | cut -f 2 -d ' '"
 }
 #-----------------------------------------------------------------------------
