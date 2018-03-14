@@ -198,7 +198,7 @@ main() {
         DTU_VERBOSE=0
         ;;
       all) run_all "${_output_style:-terse}" ;;
-      *) run_one "$dtu_updaters_path/"??"_${_command}.sh" ${_output_style} ;;
+      *) run_one "$dtu_updaters_path/${_command}.sh" ${_output_style} ;;
     esac
   done
 }
