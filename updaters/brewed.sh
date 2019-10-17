@@ -5,6 +5,9 @@ updater() {
   [[ -n $DTU_VERBOSE ]] && echo "DTU: brew upgrade"
   brew upgrade
 
+  [[ -n $DTU_VERBOSE ]] && echo "DTU: brew cask upgrade"
+  brew cask upgrade
+
   [[ -z ${tools[*]} ]] && return 0
 
   while read -r _installed ; do
