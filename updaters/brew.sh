@@ -9,8 +9,6 @@ updater() {
 
   [[ -n $DTU_VERBOSE ]] && echo "DTU: brew update"
   brew update --all
-  [[ -n $DTU_VERBOSE ]] && echo "DTU: brew prune"
-  brew prune
   [[ -n $DTU_VERBOSE ]] && echo "DTU: brew cleanup"
   brew cleanup -s
 }
